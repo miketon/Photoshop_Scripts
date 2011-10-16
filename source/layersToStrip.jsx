@@ -17,7 +17,7 @@ function initUI(){
 
   var ui            = new Window('dialog', 'layersToStrip')                      ; //, {closeButton:'true'}) ;
   // this.windowRef = ui                                                         ;
-  var panel         = ui.add('panel', undefined, 'Offset percentage'           ) ;
+  var panel         = ui.add('panel', undefined, 'Offset pixel'                ) ;
   var slidOffset    = panel.add('slider', undefined, 16, 0, 32                 ) ;
   var intOffset     = Math.round(slidOffset.value                              ) ;
   var offset        = panel.add('staticText', undefined, intOffset             ) ;
@@ -61,6 +61,7 @@ function layersToStrip(offset_IN, bool_Landscape){
   for(var i = numLayers ; i > -1; i--){               // Topmost layer == 0; Adobe sucks
     var currentLayer = docRef.layers[i]               ;
     currentLayer.rasterize(RasterizeType.ENTIRELAYER) ; //rasterize content
+    currentLayer.visible = true;
   }
 
   var myRegion = Array(0,0,width,height) ;
