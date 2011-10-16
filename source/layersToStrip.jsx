@@ -15,10 +15,11 @@ app.bringToFront();
 
 function initUI(){
 
-  var ui            = new Window('dialog', 'layersToStrip')                      ; //, {closeButton:'true'}) ;
+  var ui            = new Window('dialog', 'layersToStrip')                      ; //, {closeButton:'true'})                          ;
   // this.windowRef = ui                                                         ;
-  var panel         = ui.add('panel', undefined, 'Offset pixel'                ) ;
+  var panel         = ui.add('panel', undefined, 'Offset Pixel'                ) ;
   var slidOffset    = panel.add('slider', undefined, 16, 0, 32                 ) ;
+  // slidOffset.value  = 0                                                          ; //Adobe Sucks: When assigning as part of init, range 0:16, 0:16
   var intOffset     = Math.round(slidOffset.value                              ) ;
   var offset        = panel.add('staticText', undefined, intOffset             ) ;
   var bttnHorizn    = panel.add('button', undefined, 'Horizontal'              ) ;
@@ -32,7 +33,7 @@ function initUI(){
 
   bttnHorizn.onClick = function(){
     layersToStrip(intOffset, true)             ;
-    //Number call back returns button click id ; also closes process
+    //returns button click id ; also closes process
     this.parent.parent.close(0)                ;
   }                                            ;
 
@@ -54,43 +55,40 @@ function layersToStrip(offset_IN, bool_Landscape){
   var docRef                 = app.activeDocument ;
   var width                  = docRef.width       ;
   var height                 = docRef.height      ;
-
+    //init document
   var numLayers = docRef.layers.length -1          ;
   docRef.layers[numLayers].isBackgroundLayer=false ;  // Adobe really sucks!!! : turn off background layer,
                                                       // else will get error trying to translate pixel in that layer
   for(var i = numLayers ; i > -1; i--){               // Topmost layer == 0; Adobe sucks
     var currentLayer = docRef.layers[i]               ;
     currentLayer.rasterize(RasterizeType.ENTIRELAYER) ; //rasterize content
-    currentLayer.visible = true;
+    currentLayer.visible = true                       ;
   }
-
-  var myRegion = Array(0,0,width,height) ;
-  docRef.crop(myRegion)                  ;
-
-  var offsetX = offset_IN ; //*width  ;
-  var offsetY = offset_IN ; //*height ;
-  var xpos    = 0         ;
-  var ypos    = 0         ;
-
+    //config landscape/portrait strip
+  var offsetX = 0 ;
+  var offsetY = 0 ;
+  var offsetC = 0 ;
   if(bool_Landscape == true){
-    docRef.resizeCanvas(((width+offsetX)*(numLayers+1))-offsetX*2, height, AnchorPosition.TOPLEFT) ;
+    offsetX = width+offset_IN                                    ; //*width ;
+    offSetC = (offsetX*(numLayers+1)) - (offset_IN*2)            ;
+    docRef.resizeCanvas(offSetC, height, AnchorPosition.TOPLEFT) ;
   }
   else{
-    docRef.resizeCanvas(width, ((height+offsetY)*(numLayers+1))-offsetY*2, AnchorPosition.TOPLEFT) ;
+    offsetY = height+offset_IN                                  ; //*width ;
+    offSetC = (offsetY*(numLayers+1)) - (offset_IN*2)           ;
+    docRef.resizeCanvas(width, offSetC, AnchorPosition.TOPLEFT) ;
   }
-
+    //process/xform landscape/portrait layers
+  var xpos    = 0 ;
+  var ypos    = 0 ;
   for(var i = 0 ; i < numLayers+1; i++){                          
     var currentLayer = docRef.layers[i] ;
-    if(bool_Landscape == true){
-      currentLayer.translate(xpos, 0) ;
-      xpos += width + offsetX         ;
-    }
-    else{
-      currentLayer.translate(0, ypos) ;
-      ypos += height + offsetY        ;
-    }
+    currentLayer.translate(xpos, ypos)  ;
+    xpos += offsetX                     ;
+    ypos += offsetY                     ;
   }
-  docRef =null;
+
+  docRef = null;
 }
 
 function layersToStrip_Init(){
@@ -99,7 +97,7 @@ function layersToStrip_Init(){
     app.activeDocument.suspendHistory ('layersToStrip', 'initUI()');
   }
   else{
-    alert('Please load a imageSeriesofLayers.psd to layout as strip');
+    debugMessage('Please load a imageSeriesofLayers.psd to layout as strip');
   }
 }
 
