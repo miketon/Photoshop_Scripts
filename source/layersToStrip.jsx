@@ -19,15 +19,20 @@ function initUI(){
   var pSettings        = ui.add        ( 'panel', undefined, 'Settings'        )          ;
   var gEmpty           = pSettings.add ( 'group', undefined, 'Empty'           )          ;
   var gOrient          = pSettings.add ( 'group', undefined, 'Orientation'     )          ;
-  var bLandscape       = gOrient.add   ( 'radiobutton', undefined, 'Landscape' )          ;
-      bLandscape.value = true                                                             ;
-  var bPortrait        = gOrient.add   ( 'radiobutton', undefined, 'Portrait'           ) ;
-      gEmpty           = pSettings.add ( 'group', undefined, 'Empty'                    ) ;
-  var panel            = pSettings.add ( 'panel', undefined, 'Offset'                   ) ;
-  var gOffset          = panel.add     ( 'group', undefined, 'Offset'                   ) ;
-  var slidOffset       = gOffset.add   ( 'slider', undefined, 16, 0, 32                 ) ;
-  var intOffset        = Math.round    ( slidOffset.value                               ) ;
-  var offset           = gOffset.add   ( 'staticText', undefined, intOffset+'px'        ) ;
+  var rLandscape       = gOrient.add   ( 'radiobutton', undefined, 'Landscape' )          ;
+      rLandscape.value = true                                                             ;
+  var rPortrait        = gOrient.add   ( 'radiobutton', undefined, 'Portrait'    )        ;
+      gEmpty           = pSettings.add ( 'group', undefined, 'Empty'             )        ;
+  var panel            = pSettings.add ( 'panel', undefined, 'Offset'            )        ;
+  var gOffset          = panel.add     ( 'group', undefined, 'Offset'            )        ;
+  var slidOffset       = gOffset.add   ( 'slider', undefined, 16, 0, 32          )        ;
+  var intOffset        = Math.round    ( slidOffset.value                        )        ;
+  var offset           = gOffset.add   ( 'staticText', undefined, intOffset+'px' )        ;
+  var gPanel           = pSettings.add ( 'panel', undefined, 'Layer Order'       )        ;
+  var gLayers          = gPanel.add    ( 'group', undefined, 'Layers'            )        ;
+  var rbgFIRST         = gLayers.add   ( 'radiobutton', undefined, 'bgFIRST'     )        ;
+      rbgFIRST.value   = true                                                             ;
+  var rbgLAST          = gLayers.add   ( 'radiobutton', undefined, 'bgLAST'             ) ;
   var gFunc            = ui.add        ( 'group', undefined, 'Functions'                ) ;
   var bttnAction       = gFunc.add     ( 'button', undefined, 'Ok', {name:'ok'}         ) ;
   var bttnCancel       = gFunc.add     ( 'button', undefined, 'Cancel', {name:'cancel'} ) ;
@@ -38,10 +43,8 @@ function initUI(){
   } 
 
   bttnAction.onClick = function() {
-    if(bLandscape.value==true)    { layersToStrip(intOffset, true) ;  }
-    else                          { layersToStrip(intOffset, false);  }
-    //returns button click id ; also closes process
-    this.parent.parent.close(1)                ;
+    layersToStrip(intOffset, rLandscape.value, rbgFIRST.value) ;
+    this.parent.parent.close(1)                     ; //returns button click id. also closes process
   }
 
   bttnCancel.onClick = function(){
@@ -51,7 +54,7 @@ function initUI(){
   ui.show();
 }
 
-function layersToStrip(offset_IN, bool_Landscape){
+function layersToStrip(offset_IN, bool_Landscape, bool_bgFIRST){
 
   app.preferences.rulerUnits = Units.PIXELS       ;
   var docRef                 = app.activeDocument ;
@@ -84,12 +87,16 @@ function layersToStrip(offset_IN, bool_Landscape){
   var xpos    = 0 ;
   var ypos    = 0 ;
   for(var i = 0 ; i < numLayers+1; i++){                          
-    var currentLayer = docRef.layers[i] ;
-    currentLayer.translate(xpos, ypos)  ;
-    xpos += offsetX                     ;
-    ypos += offsetY                     ;
-  }
 
+    var indexL = i;
+      if(bool_bgFIRST==true){ indexL=numLayers-i ; }
+
+    var currentLayer = docRef.layers[indexL]     ;
+    currentLayer.translate(xpos, ypos)           ;
+    xpos += offsetX                              ;
+    ypos += offsetY                              ;
+
+  }
   docRef = null;
 }
 
