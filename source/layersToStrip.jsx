@@ -15,36 +15,38 @@ app.bringToFront();
 
 function initUI(){
 
-  var ui            = new Window('dialog', 'layersToStrip')                      ; //, {closeButton:'true'})                          ;
-  // this.windowRef = ui                                                         ;
-  var panel         = ui.add('panel', undefined, 'Offset Pixel'                ) ;
-  var slidOffset    = panel.add('slider', undefined, 16, 0, 32                 ) ;
-  // slidOffset.value  = 0                                                          ; //Adobe Sucks: When assigning as part of init, range 0:16, 0:16
-  var intOffset     = Math.round(slidOffset.value                              ) ;
-  var offset        = panel.add('staticText', undefined, intOffset             ) ;
-  var bttnHorizn    = panel.add('button', undefined, 'Horizontal'              ) ;
-  var bttnVertcl    = panel.add('button', undefined, 'Vertical'                ) ;
-  var bttnCancel    = panel.add('button', undefined, 'Cancel', {name:'cancel'} ) ;
+  var ui               = new Window    ( 'dialog', 'layersToStrip'             )          ; //, {closeButton:'true'} ) ;
+  var pSettings        = ui.add        ( 'panel', undefined, 'Settings'        )          ;
+  var gEmpty           = pSettings.add ( 'group', undefined, 'Empty'           )          ;
+  var gOrient          = pSettings.add ( 'group', undefined, 'Orientation'     )          ;
+  var bLandscape       = gOrient.add   ( 'radiobutton', undefined, 'Landscape' )          ;
+      bLandscape.value = true                                                             ;
+  var bPortrait        = gOrient.add   ( 'radiobutton', undefined, 'Portrait'           ) ;
+      gEmpty           = pSettings.add ( 'group', undefined, 'Empty'                    ) ;
+  var panel            = pSettings.add ( 'panel', undefined, 'Offset'                   ) ;
+  var gOffset          = panel.add     ( 'group', undefined, 'Offset'                   ) ;
+  var slidOffset       = gOffset.add   ( 'slider', undefined, 16, 0, 32                 ) ;
+  var intOffset        = Math.round    ( slidOffset.value                               ) ;
+  var offset           = gOffset.add   ( 'staticText', undefined, intOffset+'px'        ) ;
+  var gFunc            = ui.add        ( 'group', undefined, 'Functions'                ) ;
+  var bttnAction       = gFunc.add     ( 'button', undefined, 'Ok', {name:'ok'}         ) ;
+  var bttnCancel       = gFunc.add     ( 'button', undefined, 'Cancel', {name:'cancel'} ) ;
 
   slidOffset.onChanging = function(){
-    intOffset = Math.round(slidOffset.value) ;
-    offset.text = intOffset                  ;
-  }                                          ;
+    intOffset   = Math.round(slidOffset.value) ;
+    offset.text = (intOffset+'px')             ;
+  } 
 
-  bttnHorizn.onClick = function(){
-    layersToStrip(intOffset, true)             ;
+  bttnAction.onClick = function() {
+    if(bLandscape.value==true)    { layersToStrip(intOffset, true) ;  }
+    else                          { layersToStrip(intOffset, false);  }
     //returns button click id ; also closes process
-    this.parent.parent.close(0)                ;
-  }                                            ;
-
-  bttnVertcl.onClick = function(){
-    layersToStrip(intOffset, false) ;
-    this.parent.parent.close(1)     ;
-  }                                 ;
+    this.parent.parent.close(1)                ;
+  }
 
   bttnCancel.onClick = function(){
-    this.parent.parent.close(2) ;
-  }                             ;
+    this.parent.parent.close(0) ;
+  } 
 
   ui.show();
 }
